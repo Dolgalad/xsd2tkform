@@ -1,0 +1,23 @@
+<Spase>
+  <Version>2.3.1</Version>
+  <Catalog>
+    <ResourceID></ResourceID>
+    <ResourceHeader>
+      <ResourceName></ResourceName>
+      <ReleaseDate>2021-10-20T00:00:00Z</ReleaseDate>
+      <Description></Description>
+      <Contact>
+        <PersonID></PersonID>
+        <Role>ArchiveSpecialist</Role>
+      </Contact>
+    </ResourceHeader>
+    <AccessInformation>
+      <RepositoryID></RepositoryID>
+      <AccessURL>
+        <URL></URL>
+      </AccessURL>
+      <Format>AVI</Format>
+    </AccessInformation>
+    <PhenomenonType>ActiveRegion</PhenomenonType>
+  </Catalog>
+</Spase>
