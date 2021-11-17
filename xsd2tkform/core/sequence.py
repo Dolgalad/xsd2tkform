@@ -2,14 +2,16 @@
 
 """
 
-from xsd2tkform.core.element import Element
-from xsd2tkform.core.choice import Choice
+from .element import Element
+from .choice import Choice
 
 class Sequence:
     def __init__(self, items=[]):
         self.items = items
     def add(self, i):
         self.items.append(i)
+    def __eq__(self, e):
+        return self.items==e.items
     def __str__(self, tab_n=0):
         r="\t"*tab_n+"Sequence"
         if len(self.items):
@@ -28,6 +30,8 @@ class Sequence:
                 s.add(Element.from_element(child))
             elif child.tag.endswith("choice"):
                 s.add(Choice.from_element(child))
+            elif child.tag.endswith("any"):
+                s.add(AnyElement(**dict(child.attrib)))
             else:
                 pass
         return s

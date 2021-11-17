@@ -4,7 +4,7 @@
 from .element import Element
 
 class Choice:
-    def __init__(self, min_occurs=0, max_occurs=0):
+    def __init__(self, min_occurs=1, max_occurs=1):
         self.min_occurs=min_occurs
         self.max_occurs=max_occurs
         self.elements=[]

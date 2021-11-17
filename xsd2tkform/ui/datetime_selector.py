@@ -31,5 +31,27 @@ class DatetimeEntry(tk.Frame):
     def get(self):
         # return time value
         return "{}T{}:{}:{}Z".format(self.date.get(), self.hours.get(), self.minutes.get(), self.seconds.get())
+    def set(self, content):
+        content=content.strip()
+        from datetime import datetime
+        if content.endswith("Z"):
+            if "." in content:
+                d=datetime.strptime(content, "%Y-%m-%dT%H:%M:%S.%fZ")
+            else:
+                d=datetime.strptime(content, "%Y-%m-%dT%H:%M:%SZ")
+        else:
+            if "." in content:
+                d=datetime.strptime(content, "%Y-%m-%dT%H:%M:%S.%f")
+            else:
+                d=datetime.strptime(content, "%Y-%m-%dT%H:%M:%S")
 
+
+        self.date.set_date(d)
+        t=d.time()
+        self.hours.delete(0,"end")
+        self.minutes.delete(0,"end")
+        self.seconds.delete(0,"end")
+        self.hours.insert(0, "{0:02d}".format(t.hour))
+        self.minutes.insert(0, "{0:02d}".format(t.minute))
+        self.seconds.insert(0, "{0:02d}".format(t.second))
 

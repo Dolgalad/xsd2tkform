@@ -1,9 +1,11 @@
-from xsd2tkform.core.annotation import Annotation
-from xsd2tkform.core.restriction import Restriction
-from xsd2tkform.core.list import List
-from xsd2tkform.core.sequence import Sequence
-from xsd2tkform.core.choice import Choice
-from xsd2tkform.core.element import Element
+from lxml import etree
+
+from .annotation import Annotation
+from .restriction import Restriction
+from .list import List
+from .sequence import Sequence
+from .choice import Choice
+from .element import Element, AnyElement
 
 def get_annotation(element):
     """Get annotations from a type definition element
@@ -39,6 +41,8 @@ def get_list(element):
 def get_sequence(element):
     sequence = []
     for child in element:
+        if isinstance(child, etree._Comment):
+            continue
         if child.tag.endswith("sequence"):
             # children should be elements of choices
             for gchild in child:
@@ -46,8 +50,28 @@ def get_sequence(element):
                     sequence.append(Element.from_element(gchild))
                 elif gchild.tag.endswith("choice"):
                     sequence.append(Choice.from_element(gchild))
+                elif gchild.tag.endswith("any"):
+                    sequence.append(AnyElement(**dict(gchild.attrib)))
                 else:
                     pass
     return Sequence(sequence)
 
+def get_extension(element):
+    from .element import get_attributes
+    for child in element:
+        if isinstance(child, etree._Comment):
+            continue
+        if child.tag.endswith("}complexContent"):
+            # extension
+            if child[0].tag.endswith("}extension"):
+                base_type = child[0].attrib["base"]
+                sequence = get_sequence(child[0])
+                return (base_type, sequence)
+        if child.tag.endswith("}simpleContent"):
+            # extension
+            if child[0].tag.endswith("}extension"):
+                base_type = child[0].attrib["base"].split(":")[-1]
+                attributes = get_attributes(child[0])
+                return (base_type, attributes)
 
+    return None

@@ -7,7 +7,7 @@ import platform
 class ScrollFrame(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent) # create a frame (self)
-
+        self.bind_ids=[]
         self.canvas = tk.Canvas(self, borderwidth=0, background="#ffffff")          #place canvas on self
         self.viewPort = tk.Frame(self.canvas, background="#ffffff")                    #place a frame on the canvas, this frame will hold the child widgets 
         self.vsb = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview) #place a scrollbar on self 
@@ -18,11 +18,11 @@ class ScrollFrame(tk.Frame):
         self.canvas_window = self.canvas.create_window((4,4), window=self.viewPort, anchor="nw",            #add view port frame to canvas
                                   tags="self.viewPort")
 
-        self.viewPort.bind("<Configure>", self.onFrameConfigure)                       #bind an event whenever the size of the viewPort frame changes.
-        self.canvas.bind("<Configure>", self.onCanvasConfigure)                       #bind an event whenever the size of the canvas frame changes.
+        self.bind_ids.append((self.viewPort, self.viewPort.bind("<Configure>", self.onFrameConfigure)))                       #bind an event whenever the size of the viewPort frame changes.
+        self.bind_ids.append((self.canvas, self.canvas.bind("<Configure>", self.onCanvasConfigure)))                       #bind an event whenever the size of the canvas frame changes.
             
-        self.viewPort.bind('<Enter>', self.onEnter)                                 # bind wheel events when the cursor enters the control
-        self.viewPort.bind('<Leave>', self.onLeave)                                 # unbind wheel events when the cursorl leaves the control
+        self.bind_ids.append((self.viewPort, self.viewPort.bind('<Enter>', self.onEnter)))                                 # bind wheel events when the cursor enters the control
+        self.bind_ids.append((self.viewPort, self.viewPort.bind('<Leave>', self.onLeave)))                                 # unbind wheel events when the cursorl leaves the control
 
         self.onFrameConfigure(None)                                                 #perform an initial stretch on render, otherwise the scroll region has a tiny border until the first resize
 
@@ -49,18 +49,25 @@ class ScrollFrame(tk.Frame):
     
     def onEnter(self, event):                                                       # bind wheel events when the cursor enters the control
         if platform.system() == 'Linux':
-            self.canvas.bind_all("<Button-4>", self.onMouseWheel)
-            self.canvas.bind_all("<Button-5>", self.onMouseWheel)
+            self.bind_ids.append((self.canvas,self.canvas.bind_all("<Button-4>", self.onMouseWheel)))
+            self.bind_ids.append((self.canvas,self.canvas.bind_all("<Button-5>", self.onMouseWheel)))
         else:
-            self.canvas.bind_all("<MouseWheel>", self.onMouseWheel)
+            self.bind_ids.append((self.canvas,self.canvas.bind_all("<MouseWheel>", self.onMouseWheel)))
 
-    def onLeave(self, event):                                                       # unbind wheel events when the cursorl leaves the control
+    def onLeave(self, event):                                                 # unbind wheel events when the cursorl leaves the control
         if platform.system() == 'Linux':
             self.canvas.unbind_all("<Button-4>")
             self.canvas.unbind_all("<Button-5>")
         else:
             self.canvas.unbind_all("<MouseWheel>")
-
+    def destroy(self):
+        # unbind all
+        for w,fid in self.bind_ids:
+            w.unbind(fid)
+        self.canvas.unbind_all("<Button-4>")
+        self.canvas.unbind_all("<Button-5>")
+        self.canvas.unbind_all("<MouseWheel>")
+        super().destroy()
 
 
 # ********************************

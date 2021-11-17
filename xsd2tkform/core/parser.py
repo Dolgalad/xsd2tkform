@@ -4,9 +4,9 @@ For now we suppose the file contains a single schema
 """
 from lxml import etree
 
-from xsd2tkform.core.type import SimpleType, ComplexType, Group, from_element
-from xsd2tkform.core.annotation import Annotation
-from xsd2tkform.core.schema import Schema
+from .type import SimpleType, ComplexType, Group, from_element
+from .annotation import Annotation
+from .schema import Schema
 
 class XSDParser:
     def __init__(self, filename=None):
@@ -21,7 +21,10 @@ class XSDParser:
         ns=root.nsmap
         # if root is a schema
         if root.tag.endswith("schema"):
-            self.schemas.append(Schema.from_element(root))
+            self.schemas.append(Schema.from_element(root, filename))
+            # apply substitutions
+            self.schemas[-1].apply_substitutions()
+            self.schemas[-1].apply_extensions()
             return
     def get(self, typename):
         for schema in self.schemas:
